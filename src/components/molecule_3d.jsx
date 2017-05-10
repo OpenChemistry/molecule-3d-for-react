@@ -38,6 +38,14 @@ class Molecule3d extends React.Component {
     selectionType: selectionTypesConstants.ATOM,
     shapes: [],
     styles: {},
+    style: {
+      stick: {
+        radius: 0.14,
+      },
+      sphere: {
+        scale: 0.3,
+      },
+    },
     width: '500px',
   }
 
@@ -76,6 +84,7 @@ class Molecule3d extends React.Component {
       selectionTypesConstants.CHAIN,
     ]),
     shapes: React.PropTypes.arrayOf(React.PropTypes.object),
+    style: React.PropTypes.objectOf(React.PropTypes.object),
     styles: React.PropTypes.objectOf(React.PropTypes.object),
     width: React.PropTypes.string,
   }
@@ -251,11 +260,15 @@ class Molecule3d extends React.Component {
     this.lastStylesByAtom = stylesByAtom;
 
     // Set these style types using a minimum number of calls to 3DMol
-    Object.entries(styleUpdates).forEach(([libStyleString, atomSerials]) => {
-      glviewer.setStyle(
-        { serial: atomSerials }, JSON.parse(libStyleString)
-      );
-    });
+    if (this.props.style) {
+      glviewer.setStyle({}, this.props.style);
+    } else {
+      Object.entries(styleUpdates).forEach(([libStyleString, atomSerials]) => {
+        glviewer.setStyle(
+          { serial: atomSerials }, JSON.parse(libStyleString)
+        );
+      });
+    }
 
     if (!this.props.atomLabelsShown) {
       glviewer.removeAllLabels();
