@@ -11,6 +11,19 @@ const DEFAULT_FONT_SIZE = 14;
 const ORBITAL_COLOR_POSITIVE = 0xff0000;
 const ORBITAL_COLOR_NEGATIVE = 0x0000ff;
 
+$3Dmol.VolumeData.prototype.volume = function (volume) {
+  this.size = new $3Dmol.Vector3(volume.dimensions[0],
+                                 volume.dimensions[1],
+                                 volume.dimensions[2]);
+  this.origin = new $3Dmol.Vector3(volume.origin[0],
+                                   volume.origin[1],
+                                   volume.origin[2]);
+  this.unit = new $3Dmol.Vector3(volume.spacing[0],
+                                 volume.spacing[1],
+                                 volume.spacing[2]);
+  this.data = new Float32Array(volume.scalars);
+};
+
 class Molecule3d extends React.Component {
   static defaultProps = {
     atomLabelsShown: false,
@@ -19,6 +32,8 @@ class Molecule3d extends React.Component {
     height: '500px',
     onRenderNewData: () => {},
     orbital: {},
+    volume: {},
+    isoSurfaces: [],
     selectedAtomIds: [],
     selectionType: selectionTypesConstants.ATOM,
     shapes: [],
@@ -42,6 +57,18 @@ class Molecule3d extends React.Component {
       iso_val: React.PropTypes.number,
       opacity: React.PropTypes.number,
     }),
+    volume: React.PropTypes.shape({
+      size: React.PropTypes.arrayOf(React.PropTypes.number),
+      origin: React.PropTypes.arrayOf(React.PropTypes.number),
+      unit: React.PropTypes.arrayOf(React.PropTypes.number),
+      data: React.PropTypes.objectOf(Float32Array),
+    }),
+    isoSurfaces: React.PropTypes.objectOf(React.PropTypes.shape({
+      color: React.PropTypes.string,
+      value: React.PropTypes.number,
+      opacity: React.PropTypes.number,
+      smoothness: React.PropTypes.number,
+    })),
     selectedAtomIds: React.PropTypes.arrayOf(React.PropTypes.number),
     selectionType: React.PropTypes.oneOf([
       selectionTypesConstants.ATOM,
@@ -99,6 +126,28 @@ class Molecule3d extends React.Component {
         isoval: -orbital.iso_val,
         color: ORBITAL_COLOR_NEGATIVE,
         opacity: orbital.opacity,
+      });
+    }
+  }
+
+  static render3dMolIsoSurfaces(glviewer, volume, isoSurfaces) {
+    console.log('isoSurface');
+    console.log(isoSurfaces);
+    if (volume) {
+      const volumeData = new $3Dmol.VolumeData(volume, 'volume');
+
+      isoSurfaces.forEach((isoSurface) => {
+        const iso = {
+          isoval: isoSurface.value,
+          color: isoSurface.color,
+          opacity: isoSurface.opacity,
+        };
+
+        if ('smoothness' in isoSurface) {
+          console.log(isoSurface.smoothness);
+          iso.smoothness = isoSurface.smoothness;
+        }
+        glviewer.addIsosurface(volumeData, iso);
       });
     }
   }
@@ -214,6 +263,8 @@ class Molecule3d extends React.Component {
 
     Molecule3d.render3dMolShapes(glviewer, this.props.shapes);
     Molecule3d.render3dMolOrbital(glviewer, this.props.orbital);
+    Molecule3d.render3dMolIsoSurfaces(glviewer, this.props.volume,
+                                      this.props.isoSurfaces);
 
     glviewer.setBackgroundColor(
       libUtils.colorStringToNumber(this.props.backgroundColor),
