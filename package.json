@@ -6,9 +6,6 @@
     "node": "6.9.1"
   },
   "main": "dist/bundle.js",
-  "files": [
-    "dist/"
-  ],
   "keywords": [
     "molecule",
     "react",
@@ -23,7 +20,8 @@
     "jquery": "^3.1.0",
     "keymirror": "^0.1.1",
     "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+    "react-dom": "^15.3.2",
+    "postinstall-build": "^3.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.7.7",
@@ -71,7 +69,7 @@
     "example": "NODE_ENV=DEVELOPMENT webpack-dev-server --content-base example/ --config example/webpack.config.js --progress --colors",
     "e2e": "./node_modules/nightwatch/bin/nightwatch",
     "setup-selenium": "node scripts/download_selenium.js",
-    "prepublish": "npm run build"
+    "postinstall": "postinstall-build dist"
   },
   "author": "Autodesk Bio/Nano",
   "license": "Apache 2.0",
