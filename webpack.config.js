@@ -19,7 +19,10 @@ module.exports = {
     loaders: [
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: function(modulePath) {
+           return /(node_modules|bower_components)/.test(modulePath) &&
+                  !/node_modules\/molecule-3d-for-react/.test(modulePath);
+        },
         loader: 'babel',
       }, {
         test: /\.jsx?$/,
