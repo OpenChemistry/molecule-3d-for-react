@@ -47,6 +47,7 @@ class Molecule3d extends React.Component {
       },
     },
     width: '500px',
+    animation: null,
   }
 
   static propTypes = {
@@ -87,6 +88,7 @@ class Molecule3d extends React.Component {
     style: React.PropTypes.objectOf(React.PropTypes.object),
     styles: React.PropTypes.objectOf(React.PropTypes.object),
     width: React.PropTypes.string,
+    animation: React.PropTypes.objectOf(React.PropTypes.object),
   }
 
   static isModelDataEmpty(modelData) {
@@ -105,12 +107,16 @@ class Molecule3d extends React.Component {
     });
 
     // Hack in chain and residue data, since it's not supported by chemdoodle json
+    // Also add dx,dy,dz
     glviewer.getModel().selectedAtoms().forEach((atom) => {
       const modifiedAtom = atom;
       modifiedAtom.atom = modelData.atoms[atom.serial].name;
       modifiedAtom.chain = modelData.atoms[atom.serial].chain;
       modifiedAtom.resi = modelData.atoms[atom.serial].residue_index;
       modifiedAtom.resn = modelData.atoms[atom.serial].residue_name;
+      modifiedAtom.dx = modelData.atoms[atom.serial].dx;
+      modifiedAtom.dy = modelData.atoms[atom.serial].dy;
+      modifiedAtom.dz = modelData.atoms[atom.serial].dz;
     });
   }
 
@@ -161,11 +167,23 @@ class Molecule3d extends React.Component {
     }
   }
 
+  static setupAnimation(glviewer, amplitude) {
+    if (glviewer.isAnimated()) {
+      glviewer.stopAnimate();
+    }
+
+    // Hack to clear existing frames
+    const frames = glviewer.getModel().getFrames();
+    frames.length = 0;
+    glviewer.vibrate(5, amplitude);
+  }
+
   constructor(props) {
     super(props);
 
     this.state = {
       selectedAtomIds: props.selectedAtomIds,
+      animationSetupRequired: this.props.animation !== null,
     };
   }
 
@@ -176,6 +194,11 @@ class Molecule3d extends React.Component {
   componentWillReceiveProps(nextProps) {
     this.setState({
       selectedAtomIds: nextProps.selectedAtomIds,
+    });
+
+    this.setState({
+      animationSetupRequired: (this.props.animation && nextProps.animation &&
+          this.props.animation.amplitude !== nextProps.animation.amplitude),
     });
   }
 
@@ -299,6 +322,34 @@ class Molecule3d extends React.Component {
 
     this.oldModelData = this.props.modelData;
     this.glviewer = glviewer;
+
+    if (this.props.animation) {
+      if (!renderingSameModelData || this.state.animationSetupRequired) {
+        const amplitude = this.props.animation.amplitude;
+        Molecule3d.setupAnimation(glviewer, amplitude);
+        this.setState({
+          animationSetupRequired: false,
+        });
+      }
+
+      if (!glviewer.isAnimated()) {
+        // This setTimeout is required because of a "feature" of the
+        // 3Dmol animation. The stopAnimate(...) only sets the
+        // animate flag to false, is doesn't terminate the animation
+        // loop. This flag is checked by the animation loop in order to
+        // break out, however, if we don't wait for the animate loop
+        // todo this check and break out before called animate(...)
+        // again ( which resets this flag ) we end up with two
+        // animation loops!
+        setTimeout(() => {
+          if (!glviewer.isAnimated()) {
+            glviewer.animate({ interval: 75, loop: 'forward', reps: 0 });
+          }
+        }, 100);
+      }
+    } else {
+      this.glviewer.stopAnimate();
+    }
   }
 
   render() {

@@ -117,16 +117,17 @@ const moleculeUtils = {
       return false;
     }
 
-    const atomIdsToPositions = new Map();
+    const atomIdsToAtoms = new Map();
     for (const atom of modelDataA.atoms) {
-      atomIdsToPositions.set(atom.serial, atom.positions || []);
+      atomIdsToAtoms.set(atom.serial, atom);
     }
-    return modelDataB.atoms.every(atom =>
-      atomIdsToPositions.get(atom.serial).every((position, index) => {
-        const positionsAtomB = atom.positions || [];
+    return modelDataB.atoms.every((atomB) => {
+      const atomA = atomIdsToAtoms.get(atomB.serial);
+      return atomA.positions.every((position, index) => {
+        const positionsAtomB = atomB.positions || [];
         return positionsAtomB[index] === position;
-      })
-    );
+      }) && (atomA.dx === atomB.dx && atomA.dy === atomB.dy && atomA.dz === atomB.dz);
+    });
   },
 };
 
