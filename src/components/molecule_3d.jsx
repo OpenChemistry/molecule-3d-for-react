@@ -175,7 +175,7 @@ class Molecule3d extends React.Component {
     // Hack to clear existing frames
     const frames = glviewer.getModel().getFrames();
     frames.length = 0;
-    glviewer.vibrate(5, amplitude);
+    glviewer.vibrate(10, amplitude);
   }
 
   constructor(props) {
@@ -343,7 +343,7 @@ class Molecule3d extends React.Component {
         // animation loops!
         setTimeout(() => {
           if (!glviewer.isAnimated()) {
-            glviewer.animate({ interval: 75, loop: 'forward', reps: 0 });
+            glviewer.animate({ interval: 75, loop: 'backAndForth', reps: 0 });
           }
         }, 100);
       }
