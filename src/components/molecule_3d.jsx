@@ -72,7 +72,7 @@ class Molecule3d extends React.Component {
       unit: React.PropTypes.arrayOf(React.PropTypes.number),
       data: React.PropTypes.objectOf(Float32Array),
     }),
-    isoSurfaces: React.PropTypes.objectOf(React.PropTypes.shape({
+    isoSurfaces: React.PropTypes.arrayOf(React.PropTypes.shape({
       color: React.PropTypes.string,
       value: React.PropTypes.number,
       opacity: React.PropTypes.number,
