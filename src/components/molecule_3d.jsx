@@ -325,6 +325,12 @@ class Molecule3d extends React.Component {
 
     if (this.props.animation) {
       if (!renderingSameModelData || this.state.animationSetupRequired) {
+        // If only the amplitude has changed then restore the original model
+        // before generating the frames.
+        if (this.state.animationSetupRequired && renderingSameModelData) {
+          glviewer.removeAllModels();
+          Molecule3d.render3dMolModel(glviewer, this.props.modelData);
+        }
         const amplitude = this.props.animation.amplitude;
         Molecule3d.setupAnimation(glviewer, amplitude);
         this.setState({
