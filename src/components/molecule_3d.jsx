@@ -193,7 +193,11 @@ class Molecule3d extends React.Component {
     this.render3dMol();
 
     if (this.props.rotate) {
-      const rotateInterval = setInterval(() => this.glviewer.rotate(0.5), 50);
+      const rotateInterval = setInterval(() => {
+        if (this.glviewer) {
+          this.glviewer.rotate(0.5);
+        }
+      }, 50);
       this.setState({
         rotateInterval: rotateInterval
       });
