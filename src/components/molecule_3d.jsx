@@ -148,8 +148,6 @@ class Molecule3d extends React.Component {
   }
 
   static render3dMolIsoSurfaces(glviewer, volume, isoSurfaces) {
-    console.log('isoSurface');
-    console.log(isoSurfaces);
     if (volume) {
       const volumeData = new $3Dmol.VolumeData(volume, 'volume');
 
@@ -161,7 +159,6 @@ class Molecule3d extends React.Component {
         };
 
         if ('smoothness' in isoSurface) {
-          console.log(isoSurface.smoothness);
           iso.smoothness = isoSurface.smoothness;
         }
         glviewer.addIsosurface(volumeData, iso);
