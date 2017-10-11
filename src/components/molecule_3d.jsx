@@ -48,6 +48,7 @@ class Molecule3d extends React.Component {
     },
     width: '500px',
     animation: null,
+    rotate: false
   }
 
   static propTypes = {
@@ -89,6 +90,7 @@ class Molecule3d extends React.Component {
     styles: React.PropTypes.objectOf(React.PropTypes.object),
     width: React.PropTypes.string,
     animation: React.PropTypes.objectOf(React.PropTypes.object),
+    rotate: React.PropTypes.bool
   }
 
   static isModelDataEmpty(modelData) {
@@ -189,6 +191,13 @@ class Molecule3d extends React.Component {
 
   componentDidMount() {
     this.render3dMol();
+
+    if (this.props.rotate) {
+      const rotateInterval = setInterval(() => this.glviewer.rotate(0.5), 50);
+      this.setState({
+        rotateInterval: rotateInterval
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -360,6 +369,12 @@ class Molecule3d extends React.Component {
     }
   }
 
+  onMouseDown() {
+    if (this.state.rotateInterval) {
+      clearInterval(this.state.rotateInterval);
+    }
+  }
+
   render() {
     return (
       <div
@@ -371,6 +386,7 @@ class Molecule3d extends React.Component {
           margin: '0 auto',
         }}
         ref={(c) => { this.container = c; }}
+        onMouseDown={() => this.onMouseDown()}
       />
     );
   }
