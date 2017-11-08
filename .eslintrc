@@ -3,6 +3,7 @@
   "rules": {
     "react/jsx-no-bind": 0,
     "react/no-unused-prop-types": 1,
+    "react/no-did-mount-set-state": 0
   },
   "parser": "babel-eslint",
   "globals": {

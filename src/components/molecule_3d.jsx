@@ -48,7 +48,7 @@ class Molecule3d extends React.Component {
     },
     width: '500px',
     animation: null,
-    rotate: false
+    rotate: false,
   }
 
   static propTypes = {
@@ -90,7 +90,7 @@ class Molecule3d extends React.Component {
     styles: React.PropTypes.objectOf(React.PropTypes.object),
     width: React.PropTypes.string,
     animation: React.PropTypes.objectOf(React.PropTypes.object),
-    rotate: React.PropTypes.bool
+    rotate: React.PropTypes.bool,
   }
 
   static isModelDataEmpty(modelData) {
@@ -196,7 +196,7 @@ class Molecule3d extends React.Component {
         }
       }, 50);
       this.setState({
-        rotateInterval: rotateInterval
+        rotateInterval,
       });
     }
   }
@@ -233,6 +233,12 @@ class Molecule3d extends React.Component {
 
     if (this.props.onChangeSelection) {
       this.props.onChangeSelection(newSelectedAtomIds);
+    }
+  }
+
+  onMouseDown() {
+    if (this.state.rotateInterval) {
+      clearInterval(this.state.rotateInterval);
     }
   }
 
@@ -309,8 +315,10 @@ class Molecule3d extends React.Component {
 
     Molecule3d.render3dMolShapes(glviewer, this.props.shapes);
     Molecule3d.render3dMolOrbital(glviewer, this.props.orbital);
-    Molecule3d.render3dMolIsoSurfaces(glviewer, this.props.volume,
-                                      this.props.isoSurfaces);
+    if (!jQuery.isEmptyObject(this.props.volume)) {
+      Molecule3d.render3dMolIsoSurfaces(glviewer, this.props.volume,
+                                        this.props.isoSurfaces);
+    }
 
     glviewer.setBackgroundColor(
       libUtils.colorStringToNumber(this.props.backgroundColor),
@@ -367,12 +375,6 @@ class Molecule3d extends React.Component {
       }
     } else {
       this.glviewer.stopAnimate();
-    }
-  }
-
-  onMouseDown() {
-    if (this.state.rotateInterval) {
-      clearInterval(this.state.rotateInterval);
     }
   }
 
